@@ -111,7 +111,7 @@ public class DAO {
     //method that sees if the login is correct
     public boolean logIn(User user){
         boolean todoCorrecto=false;
-        boolean estaDentro;
+        boolean estaDentro=false;
         estaDentro= isUser(user);
         if(estaDentro){
             estaDentro=false;
