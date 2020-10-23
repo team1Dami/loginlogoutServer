@@ -40,9 +40,9 @@ public class DAO {
    
    //method that creates a new user
     public void signUp(User user){
-        boolean estaDentro;
-        estaDentro= isUser(user);
-        if(!estaDentro){
+        boolean blnEstaDentro;
+        blnEstaDentro= isUser(user);
+        if(!blnEstaDentro){
              try{
                 this.openConnection(); 
 
@@ -110,22 +110,22 @@ public class DAO {
     
     //method that sees if the login is correct
     public boolean logIn(User user){
-        boolean todoCorrecto=false;
-        boolean estaDentro=false;
-        estaDentro= isUser(user);
-        if(estaDentro){
-            estaDentro=false;
-            estaDentro = passwdCorrect(user);
-            if(estaDentro){
+        boolean blnTodoCorrecto=false;
+        boolean blnEstaDentro=false;
+        blnEstaDentro= isUser(user);
+        if(blnEstaDentro){
+            blnEstaDentro=false;
+            blnEstaDentro = passwdCorrect(user);
+            if(blnEstaDentro){
                 //both login and passwd are correct
-                todoCorrecto=true;
+                blnTodoCorrecto=true;
             }else{
                 //login is correct but the passwd is wrong
             }
         }else{
             //login is incorrect
         }
-        return todoCorrecto;
+        return blnTodoCorrecto;
     }
     
     //methos that sees if the passwd is correct
