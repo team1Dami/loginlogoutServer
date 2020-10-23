@@ -114,6 +114,7 @@ public class DAO {
         boolean estaDentro;
         estaDentro= isUser(user);
         if(estaDentro){
+            estaDentro=false;
             estaDentro = passwdCorrect(user);
             if(estaDentro){
                 //both login and passwd are correct
