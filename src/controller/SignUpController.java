@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ApplicationClient;
+package controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
@@ -16,9 +17,11 @@ import javafx.stage.Stage;
 
 /**
  *
- * @author 2dam
+ * @author saray
  */
 public class SignUpController implements Initializable {
+    
+    private static final Logger logger = Logger.getLogger("controller.SignUpController");
     
     @FXML
     private Stage signUpstage;

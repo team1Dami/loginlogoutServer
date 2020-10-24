@@ -5,29 +5,31 @@
  */
 package ApplicationClient;
 
+import controller.SignUpController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
  *
- * @author rubir
+ * @author saray
  */
 public class ApplicationSignUp extends Application {
     
+  //  public static Stage signUpStage;
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage signUpStage) throws Exception {
         
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/SignUp.fxml"));
-        
-        Parent root = (Parent)loader.load();
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/signUp.fxml"));
+
+        Parent root = (Parent) loader.load();
         
         SignUpController controller = ((SignUpController) loader.getController());
-        Scene scene = new Scene(root);     
-        stage.setScene(scene);
-        stage.show();
+       
+        controller.setStage(signUpStage);
+        controller.initStage(root);
     }
 
     /**
