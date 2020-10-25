@@ -17,17 +17,16 @@ import javafx.stage.Stage;
  */
 public class ApplicationSignUp extends Application {
     
-  //  public static Stage signUpStage;
     @Override
     public void start(Stage signUpStage) throws Exception {
-        
+        // cargamos controlador
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/fxml/signUp.fxml"));
 
         Parent root = (Parent) loader.load();
-        
+        // instanciamos controlador
         SignUpController controller = ((SignUpController) loader.getController());
-       
+        signUpStage.setTitle("Sign Up");
         controller.setStage(signUpStage);
         controller.initStage(root);
     }

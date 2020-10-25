@@ -8,10 +8,13 @@ package controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -41,6 +44,18 @@ public class SignUpController implements Initializable {
     @FXML
     private TextField tfPasswd2;
     
+    @FXML
+    private Button btnCancel;
+    
+    @FXML
+    private Button btnAccept;
+    
+    @FXML
+    private void returnSignIn() {
+        // Button was clicked, close the signUp windows...     
+        signUpstage.close();
+    }
+    
     public void setStage(Stage stage) {
         this.signUpstage = stage;
     }
@@ -55,8 +70,12 @@ public class SignUpController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        
-        
+          btnCancel.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {             
+               returnSignIn(); } 
+        });
     }
+    
     
 }
