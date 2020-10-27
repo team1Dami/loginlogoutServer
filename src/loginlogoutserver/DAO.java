@@ -5,6 +5,7 @@
  */
 package loginlogoutserver;
 
+import classes.User;
 import interfaces.ClientServer;
 import java.sql.Connection;
 import java.sql.Date;
@@ -66,6 +67,7 @@ public class DAO implements ClientServer{
    }
    
    //method that creates a new user
+   @Override
     public void signUp(User user){
         boolean blnEstaDentro;
         blnEstaDentro= isUser(user);
@@ -76,7 +78,7 @@ public class DAO implements ClientServer{
                 preparedStmt = connection.prepareStatement(insertCustomerAccount);
                 
                 preparedStmt.setString(1,user.getEmail());
-                preparedStmt.setString(1,user.getFullName());             
+                //preparedStmt.setString(1,user.getFullName());             
                 preparedStmt.setLong(1, user.getId());
                 preparedStmt.setDate(1, (Date) user.getLastAccess());
                 preparedStmt.setDate(1, (Date) user.getLastPasswdChange());
@@ -143,7 +145,8 @@ public class DAO implements ClientServer{
     }
     
     //method that sees if the login is correct
-    public boolean signIn(User user){
+    @Override
+    public void signIn(User user){
         boolean blnTodoCorrecto=false;
         boolean blnEstaDentro=false;
         blnEstaDentro= isUser(user);
@@ -163,7 +166,7 @@ public class DAO implements ClientServer{
             //Actualizar la hora de ultimo login
             
         }
-        return blnTodoCorrecto;
+        //return blnTodoCorrecto;
     }
     
     private void lastLogin(Date last){
@@ -214,14 +217,7 @@ public class DAO implements ClientServer{
         return blnCorrect;
     }
 
-    @Override
-    public void signIn() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void signUp() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    
+  
 
 }
