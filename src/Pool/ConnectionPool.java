@@ -7,8 +7,6 @@ package Pool;
 
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
-import javax.sql.DataSource;
-import java.sql.Connection;
 import org.apache.commons.dbcp2.BasicDataSource;
 /**
  *
@@ -21,25 +19,27 @@ public class ConnectionPool {
   // private Properties properties = new Properties();
     private final ResourceBundle ConnectionFile;
    
-   // private static DataSource dataSource =null;
-  // private static ConnectionPool datasource;
     private static BasicDataSource basicDataSource=null;
-
+    
+    /**
+     * Constructor
+     */
     public ConnectionPool(){
         
         this.ConnectionFile = ResourceBundle.getBundle("control.ConnectionFile");
         
-        basicDataSource= new BasicDataSource();
-        if (null==basicDataSource){
-          //  basicDataSource = new BasicDataSource();
+        if (null==basicDataSource){         
             basicDataSource.setDriverClassName(this.ConnectionFile.getString("Driver"));
             basicDataSource.setUsername(this.ConnectionFile.getString("DBUser"));
             basicDataSource.setPassword(this.ConnectionFile.getString("DBPass"));
             basicDataSource.setUrl(this.ConnectionFile.getString("Conn"));
-         //   basicDataSource.setMaxActive(10);
             basicDataSource.setMinIdle(0);
             basicDataSource.setMaxIdle(10);
         }
    }
+    
+    public BasicDataSource getDataSource(){
+        return basicDataSource;
+    }
     
 }
