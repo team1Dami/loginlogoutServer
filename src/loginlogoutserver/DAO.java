@@ -128,7 +128,7 @@ public class DAO {
         return blnTodoCorrecto;
     }
     
-    //methos that sees if the passwd is correct
+    //method that sees if the passwd is correct
     public boolean passwdCorrect(User user){
         PreparedStatement preparedStmt = null;
        boolean blnCorrect = false;
@@ -158,6 +158,28 @@ public class DAO {
         }
        
         return blnCorrect;
+    }
+    
+    //method that changes the last paswwd date
+    public void changeLastPasswdDate(User user,java.sql.Date newPasswdChange){
+        //user.setLastPasswdChange(newPasswdChange);
+        try{
+                this.openConnection(); 
+                
+                String update ="update user set lastPasswdChange = newPasswdChange WHERE id = "+user.getId()+"";
+
+                preparedStmt = connection.prepareStatement(update);
+               
+                preparedStmt.executeUpdate();
+
+                preparedStmt.close();
+                this.closeConnection();
+
+            } catch (SQLException sqlE) {
+                 System.out.println("update failed");
+             } catch (Exception e){
+                 System.out.println("");
+             }
     }
 
 }
