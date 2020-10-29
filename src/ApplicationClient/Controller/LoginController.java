@@ -6,19 +6,10 @@
 package ApplicationClient.Controller;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import static javafx.application.ConditionalFeature.FXML;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -66,11 +57,8 @@ public class LoginController {
          tfPasswd.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                handleTextChange();
-                
-            }  
-
-            
+                handleTextChange();               
+            }              
         });
          
     }
@@ -88,11 +76,12 @@ public class LoginController {
      }*/
     @FXML
     private void handleButtonLoginAction(ActionEvent event) throws IOException {
+        Alert alert;
         if(tfPasswd.getText().toString().length()<6||tfPasswd.getText().toString().length()>12){
-                    Alert alert=new Alert(Alert.AlertType.WARNING);
+                    alert=new Alert(Alert.AlertType.WARNING);
                 }
         else{
-            Alert alert=new Alert(Alert.AlertType.CONFIRMATION);
+            alert=new Alert(Alert.AlertType.CONFIRMATION);
         }
     }
 

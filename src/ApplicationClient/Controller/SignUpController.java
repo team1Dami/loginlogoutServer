@@ -8,6 +8,7 @@ package ApplicationClient.Controller;
 import classes.User;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,13 +16,14 @@ import javafx.fxml.Initializable;
 import javafx.stage.Stage;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.stage.Modality;
 import javafx.stage.WindowEvent;
 
 /**
@@ -82,13 +84,8 @@ public class SignUpController implements Initializable {
         tfPasswd.setPromptText("Introduzca una contraseña");
         tfPasswd2.textProperty().addListener(this::textChanged);
         tfPasswd2.setPromptText("Repita su contraseña");
-        btnCancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                signUpStage.close();
-            }
-        });
-        btnAccept.setOnAction(this::handleOnActionEvent);
+        btnCancel.setOnAction(this::handleButtonCancelarAction);
+        btnAccept.setOnAction(this::handleButtonAceptarAction);
         signUpStage.show();
     }
 
@@ -107,19 +104,13 @@ public class SignUpController implements Initializable {
             String oldValue,
             String newValue) {
         Alert alert;
-        if (!validateEmail(tfEmail.getText().toString().trim())) {
+        /*     if (!validateEmail(tfEmail.getText().toString().trim())) {
             alert = new Alert(Alert.AlertType.WARNING);
-            
-        } else {
-           // handleTextChange();
         }
-        if (!tfPasswd.getText().toString().isEmpty()) {
+        else if (!tfPasswd.getText().toString().isEmpty()) {
             if (tfPasswd.getText().length() < MIN_PASS_LENGHT || tfPasswd.getText().length() > MAX_PASS_LENGHT) {
                 alert = new Alert(Alert.AlertType.WARNING);
-              
-            } else {
-             //   handleTextChange();
-            }
+            } 
         } else {
             alert = new Alert(Alert.AlertType.WARNING);
         }
@@ -129,56 +120,14 @@ public class SignUpController implements Initializable {
             } else {
                 alert = new Alert(Alert.AlertType.WARNING);
             }
-        } else {
-           // handleTextChange();
-        }
+        } 
         if (tfUser.getText().toString().isEmpty()) {
             alert = new Alert(Alert.AlertType.WARNING);
-        } else {
-           // handleTextChange();
-        }
+        } 
         if (tfFullName.getText().toString().isEmpty()) {
             alert = new Alert(Alert.AlertType.WARNING);
-        } else {
-            
-        }
-        handleTextChange();
-    }
+        } */
 
-    /**
-     *
-     * @param email
-     * @return true if email is correct or false if not
-     */
-    private boolean validateEmail(String email) {
-        // Patron para validar el email
-        Pattern pattern = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
-
-        Matcher mather = pattern.matcher(email);
-        return mather.find();
-    }
-
-    /**
-     *
-     * @param event
-     */
-    private void handleWindowShowing(WindowEvent event) {
-        btnAccept.setDisable(true);
-    }
-
-    private void handleOnActionEvent(ActionEvent event) {
-        User user = new User();
-        user.setFullname(tfFullName.getText().toString());
-        user.setLogIn(tfUser.getText().toString());
-        user.setEmail(tfEmail.getText().toString());
-        user.setPasswd(tfPasswd.getText().toString());
-    }
-    /**
-     * *
-     *
-     */
-    private void handleTextChange() {
-        Alert alert;
         if (validateEmail(tfEmail.getText().toString())
                 && !tfFullName.getText().isEmpty()
                 && !tfUser.getText().isEmpty()
@@ -189,9 +138,75 @@ public class SignUpController implements Initializable {
             btnAccept.setDisable(false);
         } else {
             alert = new Alert(Alert.AlertType.WARNING);
-          //  alert.showAndWait();
+            //  alert.showAndWait();
             btnAccept.setDisable(true);
         }
     }
 
+    /**
+     *
+     * @param event
+     */
+    private void handleWindowShowing(WindowEvent event) {
+        btnAccept.setDisable(true);
+    }
+
+    /**
+     * *
+     *
+     */
+    @FXML
+    private void handleButtonAceptarAction(ActionEvent event) {
+        User user;
+
+        try {
+            user = new User();
+            user.setFullname(tfFullName.getText().toString());
+            user.setLogIn(tfUser.getText().toString());
+            user.setEmail(tfEmail.getText().toString());
+            user.setPasswd(tfPasswd.getText().toString());
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "User can not set", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleButtonCancelarAction(ActionEvent event) {
+        Alert alert;
+        Parent root1;
+        try {
+            FXMLLoader loader
+                    = new FXMLLoader(getClass().getResource("Login.fxml"));
+            Parent root = (Parent) loader.load();
+            LoginController logInController = ((LoginController) loader.getController());
+            //Initializes and shows login stage
+            Scene loginScene = new Scene(root);
+            Stage loginStage = new Stage();
+            loginStage.initModality(Modality.APPLICATION_MODAL);
+            loginStage.setScene(loginScene);
+            
+            signUpStage.close();
+         //   logInController.initStage(root);
+            loginStage.show();
+     
+        } catch (Exception ex) {
+
+            logger.log(Level.SEVERE,
+                    "UI LoginController: Error opening users managing window: {0}",
+                    ex.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param email
+     * @return true if the email is correct or false if is not
+     */
+    private boolean validateEmail(String email) {
+        // Patron para validar el email
+        Pattern pattern = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+
+        Matcher mather = pattern.matcher(email);
+        return mather.find();
+    }
 }
