@@ -6,60 +6,63 @@
 package loginlogoutserver;
 
 import classes.Message;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import threads.ServerWorker;
 
 /**
  *
- * @author rubir
+ * @author saray, eneko
  */
 public class Server {
-    
-    private  final String HOST = "localhost";
+
+    private static final Logger logger = Logger.getLogger("loginlogouServer.Server");
+
+    private final String HOST = "localhost";
     private static final int PORT = 5000;
+    private static final int MAX_CONN = 10;
+
     /**
      * @param args the command line arguments
      */
-    
     public static void main(String[] args) {
-        
-        ServerSocket serverSocket = null;
         Socket socket = null;
-        
-        // declaramos Streams 
-        ObjectInputStream objectInput;
-        ObjectOutputStream objectOutput;
+        ServerSocket server = null;
+        Message message;
+        message = new Message();
+        ObjectInputStream objectInput = null;
+
         try {
-            serverSocket = new ServerSocket(PORT);
-            System.out.println("Sevidor iniciado");
-            
-            while(true) {  // mantenemos a la escucha
-                socket = serverSocket.accept(); // devuelve el socket del cliente
+            // Se crea el serverSocket
+            server = new ServerSocket(PORT, MAX_CONN);
+
+            // Bucle infinito para esperar conexiones
+            while (true) {
+                logger.info("Servidor a la espera de conexiones.");
+                socket = server.accept();
+                logger.info("Cliente con la IP " + socket.getInetAddress().getHostName() + " conectado.");
                 
-                System.out.println("Cliente conectado");
-                objectInput = new ObjectInputStream(socket.getInputStream()); // para leer lo que nos manda el cliente
-                objectOutput = new ObjectOutputStream(socket.getOutputStream());  // para contestar al cliente
+                objectInput = new ObjectInputStream(socket.getInputStream());
                 
-                 //importante que el primero en ejecutarse en el lado servidor sea el mensaje que se LEE 
-                 //(que le llega desde el cliente)
-               
-                //= objectInput.readUTF(); // lee lo que le manda
+                ServerWorker myClientWorker = new ServerWorker(socket);
+                myClientWorker.setSocket(socket);
                 
-              //  objectOutput.writeUTF(messageClient);
-                
-                socket.close();  // cerramos el cliente   
+                myClientWorker.start();
+
             }
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, "Ha fallado la lectura en el servidor", ex.getMessage());
+        } finally {
+            try {
+                socket.close();
+                server.close();
+            } catch (IOException ex) {
+                logger.log(Level.SEVERE,"Ha fallado el cierre del servidor " + ex.getMessage());
+            }
         }
-        
     }
-    
 }
