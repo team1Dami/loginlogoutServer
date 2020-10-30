@@ -39,25 +39,18 @@ public class SignUpController implements Initializable {
 
     @FXML
     private Stage signUpStage;
-
     @FXML
     private TextField tfFullName;
-
     @FXML
     private TextField tfUser;
-
     @FXML
     private TextField tfEmail;
-
     @FXML
     private TextField tfPasswd;  //min 6 max 12
-
     @FXML
     private TextField tfPasswd2;
-
     @FXML
     private Button btnCancel;
-
     @FXML
     private Button btnAccept;
 
@@ -150,7 +143,6 @@ public class SignUpController implements Initializable {
     private void handleWindowShowing(WindowEvent event) {
         btnAccept.setDisable(true);
     }
-
     /**
      * *
      *
@@ -158,7 +150,6 @@ public class SignUpController implements Initializable {
     @FXML
     private void handleButtonAceptarAction(ActionEvent event) {
         User user;
-
         try {
             user = new User();
             user.setFullname(tfFullName.getText().toString());
@@ -178,7 +169,7 @@ public class SignUpController implements Initializable {
             FXMLLoader loader
                     = new FXMLLoader(getClass().getResource("Login.fxml"));
             Parent root = (Parent) loader.load();
-            LoginController logInController = ((LoginController) loader.getController());
+   //         LoginController logInController = ((LoginController) loader.getController());
             //Initializes and shows login stage
             Scene loginScene = new Scene(root);
             Stage loginStage = new Stage();
@@ -196,7 +187,6 @@ public class SignUpController implements Initializable {
                     ex.getMessage());
         }
     }
-
     /**
      *
      * @param email
