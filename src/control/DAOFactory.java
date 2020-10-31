@@ -5,20 +5,22 @@
  */
 package control;
 
+import Pool.ConnectionPool;
+import static Pool.ConnectionPool.getPoolInstance;
+
 /**
  *
- * @author eneko
+ * @author eneko, saray
  */
 public class DAOFactory {
+
+ //   private DAO myDAO = null;
     
-    private DAO myDAO= null;
-   
-    public static DAO getDAO(){
-        
-      /*  if(type.equals("MySql")) {
-            return new DAO();
-        }*/
-        
+    public synchronized static DAO getDAO() {
         return new DAO();
+    }
+    public synchronized static ConnectionPool Pool() {
+        // le pide al Pool una instancia
+        return getPoolInstance();
     }
 }

@@ -8,6 +8,7 @@ package Pool;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.dbcp2.BasicDataSource;
 
@@ -19,14 +20,27 @@ public class ConnectionPool {
 
     private static final Logger logger = Logger.getLogger("Pool.ConnectionPool");
 
-    // private Properties properties = new Properties();
+    private static ConnectionPool PoolInstance = null; // definimos objeto del mismo tipo que nuestra clase
+ //   private static int countOfInstance = 0;
     private static ResourceBundle ConnectionFile;
     private static BasicDataSource basicDataSource = null;
-    private static int MIN_POOL_SIZE = 1;
-    private static int MAX_IDLE = 10;
-    private static int MAX_TIME = 5000;
+    private static int MIN_POOL_SIZE;
+    private static int MAX_IDLE;
+    private static int MAX_TIME;
+        	//    private static DAO DAOInstance;
+//    private static int countOfInstance = 0;
 
-    public BasicDataSource getDataSource() {
+    // constructor
+    private ConnectionPool() {}  // así cada vez que cree un
+ 
+    public synchronized static ConnectionPool getPoolInstance() {
+	if (PoolInstance == null) {  // preguntamos si la instancia es null
+            PoolInstance = new ConnectionPool(); // la primera vez entrará e instanciará la PoolInstance
+        }
+	return PoolInstance;  // devolvemos la instancia de nuestra clase ConnectionPool
+    }
+    
+    public synchronized BasicDataSource getDataSource() {
         this.ConnectionFile = ResourceBundle.getBundle("control.ConnectionFile");
 
         if (null == basicDataSource) {
@@ -34,35 +48,24 @@ public class ConnectionPool {
             basicDataSource.setUsername(this.ConnectionFile.getString("DBUser"));
             basicDataSource.setPassword(this.ConnectionFile.getString("DBPass"));
             basicDataSource.setUrl(this.ConnectionFile.getString("Conn"));
-
-            //tamaño del pool
-            basicDataSource.setInitialSize(MIN_POOL_SIZE);
-            basicDataSource.setMaxIdle(MAX_IDLE);
-
-            // tiempo máximo de espera
-            basicDataSource.setMaxWaitMillis(MAX_TIME);
+            // pool size
+            basicDataSource.setInitialSize(Integer.parseInt(this.ConnectionFile.getString("MIN_POOL_SIZE")));
+            basicDataSource.setMaxIdle(Integer.parseInt(this.ConnectionFile.getString("MAX_IDLE")));
+            // Max time wait
+            basicDataSource.setMaxWaitMillis(Integer.parseInt(this.ConnectionFile.getString("MAX_TIME")));
         }
         return basicDataSource;
     }
 
     // devolvemos la conexión
-    public Connection getConnection() throws SQLException {
-        return getDataSource().getConnection();
-    }
-
-    public static int getMIN_POOL_SIZE() {
-        return MIN_POOL_SIZE;
-    }
-
-    public static void setMIN_POOL_SIZE(int MIN_POOL_SIZE) {
-        ConnectionPool.MIN_POOL_SIZE = MIN_POOL_SIZE;
-    }
-
-    public static int getMAX_POOL_SIZE() {
-        return MAX_IDLE;
-    }
-
-    public static void setMAX_POOL_SIZE(int MAX_POOL_SIZE) {
-        ConnectionPool.MAX_IDLE = MAX_POOL_SIZE;
+    public synchronized Connection getConnection() {
+        
+      //  Connection conn = basicDataSource.
+        try {
+            return getDataSource().getConnection();
+        } catch (SQLException ex) {
+            Logger.getLogger(ConnectionPool.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }
