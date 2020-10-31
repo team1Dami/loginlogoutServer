@@ -27,6 +27,7 @@ public class Server {
     private static int MAX_CONN;
 
     private Server () {
+        socketFile = ResourceBundle.getBundle("loginlogoutserver.socketFile");
         PORT = Integer.parseInt(this.socketFile.getString("PORT"));
         MAX_CONN = Integer.parseInt(this.socketFile.getString("MAX_CONN"));
     }
@@ -37,7 +38,7 @@ public class Server {
      * @param args the command line arguments
      */
    /* public Server() {
-        socketFile = ResourceBundle.getBundle("loginlogoutserver.socketFile");
+        
         PORT = Integer.parseInt(socketFile.getString("PORT"));
         MAX_CONN = Integer.parseInt(socketFile.getString("MAX_CONN"));
     }*/
