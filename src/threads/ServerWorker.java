@@ -14,8 +14,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.activation.DataSource;
 
 /**
  *
@@ -28,46 +30,57 @@ public class ServerWorker extends Thread {
     private Connection connection = null;
     private Message myMessage;
     private Socket mySocket;
-    // private FactoryDao myDAO = new FactoryDAO(); 
+
+    public ServerWorker(Socket socket) {
+        this.mySocket = socket;
+    }
 
     @Override
     public void run() {
-        // pedir clase DAO a la factory
+
         ObjectInputStream objectInput = null;
         ObjectOutputStream objectOutput = null;
 
-        Message message;
-        User myUser;
+        Message message = null;
+        User myUser = null;
 
         try {
-            logger.info("voy a abrir el buffer");
+            logger.info("voy a abrir el buffer de lectura");
             // instanciamos bufferes de lectura y escritura
             objectInput = new ObjectInputStream(mySocket.getInputStream()); // para leer lo que nos manda el cliente          
 
             logger.info("voy a leer del buffer");
             // leemos el mensaje y recogemos los datos
             message = (Message) objectInput.readObject();
-            myUser = message.getUser();
-            myUser.setLogIn("ServerWorker");
-            message.setUser(myUser);
-
+            //  setMessage(message);
+            myMessage = message;
+            myUser = myMessage.getUser();
+            //   myUser.setLogIn("ServerWorker");
+            myMessage.setUser(myUser);
+            // pedimos DAO a la DAOFactory
             DAO myDAO;
             myDAO = DAOFactory.getDAO();
-            Connection conn = DAOFactory.Pool().getConnection(); // recogemos la conexión de nuestra instancia del Pool (recuerda que el método Pool pide una instancia del ConnectionPool!!!!
+
+            Connection conn = null;
+            try {
+                conn = DAOFactory.Pool().getConnection(); // recogemos la conexión de nuestra instancia del Pool (recuerda que el método Pool pide una instancia del ConnectionPool!!!!
+            } catch (Exception ex) {
+                Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+            }
             myDAO.setConnection(conn);  // enviamos conexión a la DB
 
-            if (message.getType().equals("logIn")) {
-                message.setUser(myDAO.signIn(myUser));  // recogemos el user tras la consulta a la DB
-                message.setException(myDAO.getException());  // recogemos la excepción que nos viene de la DB
+            if (myMessage.getType().equals("logIn")) {
+                myMessage.setUser(myDAO.signIn(myUser));  // recogemos el user tras la consulta a la DB
+                myMessage.setException(myDAO.getException());  // recogemos la excepción que nos viene de la DB
 
-            } else if (message.getType().equals("logUp")) {
-                message.setUser(myDAO.signUp(myUser));  // recogemos el user tras la consulta a la DB
-                message.setException(myDAO.getException()); // recogemos la excepción que nos viene de la DB
+            } else if (myMessage.getType().equals("logUp")) {
+                myMessage.setUser(myDAO.signUp(myUser));  // recogemos el user tras la consulta a la DB
+                myMessage.setException(myDAO.getException()); // recogemos la excepción que nos viene de la DB
             }
             message.setException(myDAO.getException());
             // escribimos los datos en el buffer
             objectOutput = new ObjectOutputStream(mySocket.getOutputStream());
-            objectOutput.writeObject(message);
+            objectOutput.writeObject(myMessage);
 
         } catch (IOException ex) {
             Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
@@ -76,10 +89,12 @@ public class ServerWorker extends Thread {
             Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
-                //  connection.close(); // devuelve la conexión a su pool
+                connection.close(); // devuelve la conexión a su pool
                 objectOutput.close();
                 objectInput.close();
             } catch (IOException ex) {
+                Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
                 Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -91,10 +106,6 @@ public class ServerWorker extends Thread {
 
     public void setSocket(Socket socket) {
         this.mySocket = socket;
-    }
-
-    public ServerWorker(Socket socket) {
-
     }
 
     public void setMessage(Message message) {

@@ -27,8 +27,8 @@ public class DAO implements ClientServer {
 
     //PreparedStatment
     private static final String insertUser = "INSERT INTO users VALUES (?,?,?,?,?,?,?,?,?)";
-    private static final String selectLogin = "SELECT login FROM users WHERE login = ?";
-    private static final String selectPasswd = "SELECT passwd FROM users WHERE login = ?";
+    private static final String selectLogin = "SELECT login FROM users";
+    private static final String selectPasswd = "SELECT passwd FROM users WHERE login is ?";
     private static final String selectCountId = "SELECT MAX(id) FROM user";
 
     public void setConnection(Connection connection) {
@@ -57,7 +57,6 @@ public class DAO implements ClientServer {
         }
         return user;
     }
-
     //method that creates a new user
     /**
      *
@@ -65,12 +64,10 @@ public class DAO implements ClientServer {
      */
     @Override
     public User signUp(User user) {
-
         if (!blnExist(user)) {
             try {
                 Long UserId = getUserId();
                 preparedStmt = connection.prepareStatement(insertUser);
-
                 preparedStmt.setLong(1, UserId);
                 preparedStmt.setString(2, user.getLogIn());
                 preparedStmt.setString(3, user.getEmail());
@@ -114,13 +111,12 @@ public class DAO implements ClientServer {
         ResultSet resultSet = null;
         try {
             preparedStmt = connection.prepareStatement(selectLogin);
-            preparedStmt.setString(1, user.getLogIn());
+    //        preparedStmt.setString(1, user.getLogIn());
 
             resultSet = preparedStmt.executeQuery(selectLogin);
 
             while (resultSet.next()) {
                 if (user.getLogIn().equalsIgnoreCase(resultSet.getString("login"))) {
-                    //System.out.println("El login introducido ya esta registrado");   //
                     return true;
                 }
             }
@@ -147,12 +143,7 @@ public class DAO implements ClientServer {
                     setException(ex);
                 }
             }
-            try {
-                connection.close();  // devolvemos conexión al pool
-            } catch (SQLException ex) {
-                Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                setException(ex);
-            }
+            //     connection.close();  // devolvemos conexión al pool
         }
         return false;
     }
@@ -163,15 +154,15 @@ public class DAO implements ClientServer {
         //  boolean blnCorrect = false;
         ResultSet resultSet = null;
         try {
-
+            
             preparedStmt = connection.prepareStatement(selectPasswd);
-            preparedStmt.setString(1, user.getPasswd());
+            preparedStmt.setString(1, user.getLogIn());
 
-            resultSet = preparedStmt.executeQuery(selectPasswd);
+            resultSet = preparedStmt.executeQuery();
 
             while (resultSet.next()) {
                 if (user.getPasswd().equals(resultSet.getString("passwd"))) {
-                    System.out.println("Password correct");  // quitar syso
+
                     return true;
                 }
             }
