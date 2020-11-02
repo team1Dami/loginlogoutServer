@@ -14,12 +14,12 @@ import static Pool.ConnectionPool.getPoolInstance;
  */
 public class DAOFactory {
 
- //   private DAO myDAO = null;
-    
+    //   private DAO myDAO = null;
     public synchronized static DAO getDAO() {
         return new DAO();
     }
-    public synchronized static ConnectionPool Pool() {
+
+    public synchronized static ConnectionPool Pool() throws Exception {
         // le pide al Pool una instancia
         return getPoolInstance();
     }
