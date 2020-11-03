@@ -14,10 +14,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.activation.DataSource;
 
 /**
  *
@@ -66,6 +64,7 @@ public class ServerWorker extends Thread {
                 conn = DAOFactory.Pool().getConnection(); // recogemos la conexión de nuestra instancia del Pool (recuerda que el método Pool pide una instancia del ConnectionPool!!!!
             } catch (Exception ex) {
                 Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+                message.setException(ex);
             }
             myDAO.setConnection(conn);  // enviamos conexión a la DB
 
@@ -82,20 +81,21 @@ public class ServerWorker extends Thread {
             objectOutput = new ObjectOutputStream(mySocket.getOutputStream());
             objectOutput.writeObject(myMessage);
 
+            myDAO.closeConnection(); // devolvemos conexión
         } catch (IOException ex) {
             Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+            message.setException(ex);
 
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+            message.setException(ex);
         } finally {
             try {
-                connection.close(); // devuelve la conexión a su pool
                 objectOutput.close();
                 objectInput.close();
             } catch (IOException ex) {
                 Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (SQLException ex) {
-                Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+                message.setException(ex);
             }
         }
     }
