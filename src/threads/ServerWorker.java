@@ -16,7 +16,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,10 +80,6 @@ public class ServerWorker extends Thread {
             } catch (NoConnectionDBException ex) {
                 Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
                 message.setException(ex);
-            } catch (SQLException ex) {
-                Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
-                NoConnectionDBException noCon = new NoConnectionDBException();
-                message.setException(noCon);
             } catch (Exception ex) {
                 Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
                 message.setException(ex);
@@ -107,7 +102,7 @@ public class ServerWorker extends Thread {
             myDAO.closeConnection(); // devolvemos conexión
         } catch (IOException ex) {
             Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
-            NoServerConnectionException noCon = new NoServerConnectionException();
+            NoServerConnectionException noCon = new NoServerConnectionException(null);
             message.setException(noCon);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
@@ -119,28 +114,34 @@ public class ServerWorker extends Thread {
                 objectInput.close();
             } catch (IOException ex) {
                 Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
-                NoServerConnectionException noCon = new NoServerConnectionException();
+                NoServerConnectionException noCon = new NoServerConnectionException(null);
                 message.setException(noCon);
             }
         }
     }
+
     /**
      * Method to get the socket
+     *
      * @return socket
      */
     public Socket getSocket() {
         return mySocket;
     }
+
     /**
      * Method to set the socket
-     * @param socket 
+     *
+     * @param socket
      */
     public void setSocket(Socket socket) {
         this.mySocket = socket;
     }
+
     /**
      * Method to set the message sending by the client
-     * @param message 
+     *
+     * @param message
      */
     public void setMessage(Message message) {
         this.myMessage = message;

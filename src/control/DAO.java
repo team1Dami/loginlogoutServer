@@ -5,9 +5,9 @@
 package control;
 
 import classes.User;
+import exceptions.LoginNoExistException;
 import exceptions.NoConnectionDBException;
 import exceptions.PasswordErrorException;
-import exceptions.UserExistException;
 import interfaces.ClientServer;
 import java.sql.Connection;
 import java.sql.Date;
@@ -59,17 +59,19 @@ public class DAO implements ClientServer {
 
                 } else {
                     user.setPasswd(null);
+                    throw new PasswordErrorException(null);
                 }
             } else {
                 user.setLogIn(null);
+                throw new LoginNoExistException(null);
             }
-        } catch (UserExistException ex) {
+        } catch (LoginNoExistException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
             setException(ex);
         } catch (PasswordErrorException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
             setException(ex);
-        }
+        } 
         return user;
     }
 
@@ -101,8 +103,7 @@ public class DAO implements ClientServer {
 
                 } catch (SQLException sqlE) {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, sqlE);
-
-                    NoConnectionDBException noCon = new NoConnectionDBException();
+                    NoConnectionDBException noCon = new NoConnectionDBException(null);
                     setException(noCon);
                 } catch (Exception e) {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
@@ -112,17 +113,16 @@ public class DAO implements ClientServer {
                         preparedStmt.close();
                     } catch (SQLException ex) {
                         Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                        NoConnectionDBException noCon = new NoConnectionDBException();
+                        NoConnectionDBException noCon = new NoConnectionDBException(null);
                         setException(noCon);
-                        setException(ex);
                     }
                 }
             } else {
-                Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, "---");
+                Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, "");
+                throw new LoginNoExistException(null);
             }
-        } catch (UserExistException ex) {
+        }  catch (LoginNoExistException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-            setException(ex);
         }
         return user;
     }
@@ -134,7 +134,7 @@ public class DAO implements ClientServer {
      * @return true if the login exist into the db or false if its not
      * @throws UserExistException
      */
-    public boolean blnExist(User user) throws UserExistException {
+    public boolean blnExist(User user) {
         preparedStmt = null;
         ResultSet resultSet = null;
         try {
@@ -149,7 +149,7 @@ public class DAO implements ClientServer {
             }
         } catch (SQLException sqlE) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, sqlE);
-            NoConnectionDBException noCon = new NoConnectionDBException();
+            NoConnectionDBException noCon = new NoConnectionDBException(null);
             setException(noCon);
 
         } catch (Exception ex) {
@@ -161,7 +161,7 @@ public class DAO implements ClientServer {
                     resultSet.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                    NoConnectionDBException noCon = new NoConnectionDBException();
+                    NoConnectionDBException noCon = new NoConnectionDBException(null);
                     setException(noCon);
                 }
             }
@@ -170,7 +170,7 @@ public class DAO implements ClientServer {
                     preparedStmt.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                    NoConnectionDBException noCon = new NoConnectionDBException();
+                    NoConnectionDBException noCon = new NoConnectionDBException(null);
                     setException(noCon);
                 }
             }
@@ -200,7 +200,7 @@ public class DAO implements ClientServer {
             }
         } catch (SQLException sqlE) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, sqlE);
-            NoConnectionDBException noCon = new NoConnectionDBException();
+            NoConnectionDBException noCon = new NoConnectionDBException(null);
             setException(noCon);
         } catch (Exception ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -211,7 +211,7 @@ public class DAO implements ClientServer {
                     resultSet.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                    NoConnectionDBException noCon = new NoConnectionDBException();
+                    NoConnectionDBException noCon = new NoConnectionDBException(null);
                     setException(noCon);
                 }
             }
@@ -220,7 +220,7 @@ public class DAO implements ClientServer {
                     preparedStmt.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                    NoConnectionDBException noCon = new NoConnectionDBException();
+                    NoConnectionDBException noCon = new NoConnectionDBException(null);
                     setException(noCon);
                 }
             }
@@ -263,7 +263,7 @@ public class DAO implements ClientServer {
             UserId = UserId + 1; // sumamos 1 al total de Id users
         } catch (SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-            NoConnectionDBException noCon = new NoConnectionDBException();
+            NoConnectionDBException noCon = new NoConnectionDBException(null);
             setException(noCon);
         }
         return UserId;
@@ -277,7 +277,7 @@ public class DAO implements ClientServer {
             connection.close();
         } catch (SQLException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-            NoConnectionDBException noCon = new NoConnectionDBException();
+            NoConnectionDBException noCon = new NoConnectionDBException(null);
             setException(noCon);
         }
     }
