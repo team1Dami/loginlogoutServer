@@ -1,7 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Package that contains the ServerWorker class
+ * and the methods to ask for a DAO, a connection
+ * and read and write on the buffer to send a response to the client
  */
 package threads;
 
@@ -9,11 +9,14 @@ import classes.Message;
 import classes.User;
 import control.DAO;
 import control.DAOFactory;
+import exceptions.NoConnectionDBException;
+import exceptions.NoServerConnectionException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,11 +32,24 @@ public class ServerWorker extends Thread {
     private Message myMessage;
     private Socket mySocket;
 
+    /**
+     * Constructor to set the socket into the thread ServerWorker
+     *
+     * @param socket
+     */
     public ServerWorker(Socket socket) {
         this.mySocket = socket;
     }
 
     @Override
+    /**
+     * In the inherit method run we can recover the information that the client
+     * sends to the server Provides throws the DAOFactory a DAO class and an
+     * Instance of a ConnectionPool class ask for a connection to the
+     * PoolInstance and set this one to the individual DAO class in order to
+     * make queries Finally returns the answer of the db and send it to the
+     * client
+     */
     public void run() {
 
         ObjectInputStream objectInput = null;
@@ -62,6 +78,13 @@ public class ServerWorker extends Thread {
             Connection conn = null;
             try {
                 conn = DAOFactory.Pool().getConnection(); // recogemos la conexión de nuestra instancia del Pool (recuerda que el método Pool pide una instancia del ConnectionPool!!!!
+            } catch (NoConnectionDBException ex) {
+                Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+                message.setException(ex);
+            } catch (SQLException ex) {
+                Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+                NoConnectionDBException noCon = new NoConnectionDBException();
+                message.setException(noCon);
             } catch (Exception ex) {
                 Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
                 message.setException(ex);
@@ -84,30 +107,41 @@ public class ServerWorker extends Thread {
             myDAO.closeConnection(); // devolvemos conexión
         } catch (IOException ex) {
             Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
-            message.setException(ex);
-
+            NoServerConnectionException noCon = new NoServerConnectionException();
+            message.setException(noCon);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
             message.setException(ex);
+
         } finally {
             try {
                 objectOutput.close();
                 objectInput.close();
             } catch (IOException ex) {
                 Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
-                message.setException(ex);
+                NoServerConnectionException noCon = new NoServerConnectionException();
+                message.setException(noCon);
             }
         }
     }
-
+    /**
+     * Method to get the socket
+     * @return socket
+     */
     public Socket getSocket() {
         return mySocket;
     }
-
+    /**
+     * Method to set the socket
+     * @param socket 
+     */
     public void setSocket(Socket socket) {
         this.mySocket = socket;
     }
-
+    /**
+     * Method to set the message sending by the client
+     * @param message 
+     */
     public void setMessage(Message message) {
         this.myMessage = message;
     }
