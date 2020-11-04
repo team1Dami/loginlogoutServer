@@ -5,7 +5,7 @@
  */
 package loginlogoutserver;
 
-import classes.Message;
+import exceptions.NoServerConnectionException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
@@ -26,7 +26,9 @@ public class Server {
     private static int PORT = Integer.parseInt(Server.socketFile.getString("PORT"));
     private static int MAX_CONN = Integer.parseInt(Server.socketFile.getString("MAX_CONN"));
 
-    // constructor
+    /**
+     * Constructor
+     */
     private Server() {
         socketFile = ResourceBundle.getBundle("loginlogoutserver.socketFile");
         PORT = Integer.parseInt(this.socketFile.getString("PORT"));
@@ -34,7 +36,10 @@ public class Server {
     }
 
     /**
-     * @param args the command line arguments
+     * Method main to start the infinite loop to wait a connection
+     * When a client ask for a connection a new thread is created
+     *
+     * @param args
      */
     public static void main(String[] args) {
 
@@ -57,8 +62,8 @@ public class Server {
                 if (numUsers <= MAX_CONN) {
                     numUsers++;  // sumamos 1 al contador de clientes conectados
                     ServerWorker myClientWorker = new ServerWorker(socket);
-           
-                    myClientWorker.start();                
+
+                    myClientWorker.start();
                 }
             }
         } catch (IOException ex) {
@@ -71,6 +76,7 @@ public class Server {
                 server.close();
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, "Ha fallado el cierre del servidor " + ex.getMessage());
+
             }
         }
     }

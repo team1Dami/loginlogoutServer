@@ -1,11 +1,12 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Package that contains the DAO class
+ * and the methods to make queries to the Data Base (db) 
  */
 package control;
 
 import classes.User;
+import exceptions.NoConnectionDBException;
+import exceptions.PasswordErrorException;
 import exceptions.UserExistException;
 import interfaces.ClientServer;
 import java.sql.Connection;
@@ -18,97 +19,127 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * DAO is the one how can made queries (select and insert ) with the Data Base
+ * (db)
  *
- * @author 2dam
+ * @author Gonzalo, Rubén, Saray
  */
 public class DAO implements ClientServer {
 
-    private Connection connection = null;
-    private PreparedStatement preparedStmt = null;
+    private Connection connection;
+    private PreparedStatement preparedStmt;
     private Exception exception = null;
 
-    //PreparedStatment
     private static final String insertUser = "INSERT INTO users VALUES (?,?,?,?,?,?,?,?,?)";
     private static final String selectLogin = "SELECT login FROM users";
     private static final String selectPasswd = "SELECT password FROM users WHERE login = ?";
     private static final String selectMaxId = "SELECT MAX(id) FROM users";
 
+    /**
+     * Method to take the connection throws the thread serverWorker
+     *
+     * @param connection
+     */
     public void setConnection(Connection connection) {
         this.connection = connection; // instanciamos la conexión que nos da el hilo (que es la que le ha dado el pool de conexiones)
     }
 
-    //method that sees if the login is correct
-    @Override
-    public User signIn(User user) {  
-        if (blnExist(user)) {
-            if (blnPassExist(user)) {
-                
-            } else {
-                //login is correct but the passwd is wrong
-                user.setPasswd(null);
-            }
-        } else {
-            //login is incorrect
-            user.setLogIn(null);
-        }
-        return user;
-    }
-
-    //method that creates a new user
     /**
      *
      * @param user
+     * @return the values of login and password if the user doesn't exist into
+     * the db returns login = null if the password doesn't match with that is
+     * registered into the db of that login return password = null
      */
     @Override
-    public User signUp(User user) {
-        if (!blnExist(user)) {
-            try {
-                Integer UserId = getUserId();
-                preparedStmt = connection.prepareStatement(insertUser);
-                preparedStmt.setInt(1, UserId);
-                preparedStmt.setString(2, user.getLogIn());
-                preparedStmt.setString(3, user.getEmail());
-                preparedStmt.setString(4, user.getFullname());
-                preparedStmt.setObject(5, 1);
-                preparedStmt.setObject(6, 1);
-                preparedStmt.setString(7, user.getPasswd());
-                preparedStmt.setDate(8, Date.valueOf(LocalDate.now()));
-                preparedStmt.setDate(9, Date.valueOf(LocalDate.now()));
+    public User signIn(User user) {
+        try {
+            if (blnExist(user)) {
+                if (blnPassExist(user)) {
 
-                preparedStmt.executeUpdate();
-
-            } catch (SQLException sqlE) {
-// falla conexión con DB Definir qué excepción ponemos----------------------------------------------------------------------
-                Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, sqlE);
-                setException(sqlE);
-            } catch (Exception e) {
-// definir qué está cascando------------------------------------------------------------------------------------------------
-                Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-                setException(e);
-            } finally {
-                try {
-                    preparedStmt.close();
-                } catch (SQLException ex) {
-// falla cierre de conexión con DB Definir qué excepción ponemos----------------------------------------------------------------------                    
-                    Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                    setException(ex);
+                } else {
+                    user.setPasswd(null);
                 }
+            } else {
+                user.setLogIn(null);
             }
-        } else {
-// Put a message telling the id is already used---------------------------------------------------------
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, "---");
+        } catch (UserExistException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            setException(ex);
+        } catch (PasswordErrorException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            setException(ex);
         }
         return user;
     }
 
-    //method that sees if the user is already created
-    public boolean blnExist(User user) {
+    /**
+     * method to register a new user into DB
+     *
+     * @param user
+     * @return the values of the new user
+     *
+     */
+    @Override
+    public User signUp(User user) {
+        try {
+            if (!blnExist(user)) {
+                try {
+                    Integer UserId = getUserId();
+                    preparedStmt = connection.prepareStatement(insertUser);
+                    preparedStmt.setInt(1, UserId);
+                    preparedStmt.setString(2, user.getLogIn());
+                    preparedStmt.setString(3, user.getEmail());
+                    preparedStmt.setString(4, user.getFullname());
+                    preparedStmt.setObject(5, 1);
+                    preparedStmt.setObject(6, 1);
+                    preparedStmt.setString(7, user.getPasswd());
+                    preparedStmt.setDate(8, Date.valueOf(LocalDate.now()));
+                    preparedStmt.setDate(9, Date.valueOf(LocalDate.now()));
+
+                    preparedStmt.executeUpdate();
+
+                } catch (SQLException sqlE) {
+                    Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, sqlE);
+
+                    NoConnectionDBException noCon = new NoConnectionDBException();
+                    setException(noCon);
+                } catch (Exception e) {
+                    Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
+                    setException(e);
+                } finally {
+                    try {
+                        preparedStmt.close();
+                    } catch (SQLException ex) {
+                        Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+                        NoConnectionDBException noCon = new NoConnectionDBException();
+                        setException(noCon);
+                        setException(ex);
+                    }
+                }
+            } else {
+                Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, "---");
+            }
+        } catch (UserExistException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            setException(ex);
+        }
+        return user;
+    }
+
+    /**
+     * Method that sees if the user is already created
+     *
+     * @param user
+     * @return true if the login exist into the db or false if its not
+     * @throws UserExistException
+     */
+    public boolean blnExist(User user) throws UserExistException {
         preparedStmt = null;
         ResultSet resultSet = null;
         try {
             preparedStmt = connection.prepareStatement(selectLogin);
-          //  preparedStmt.setString(1, user.getLogIn());
-
+            //  preparedStmt.setString(1, user.getLogIn());
             resultSet = preparedStmt.executeQuery();
 
             while (resultSet.next()) {
@@ -118,7 +149,9 @@ public class DAO implements ClientServer {
             }
         } catch (SQLException sqlE) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, sqlE);
-            setException(sqlE);
+            NoConnectionDBException noCon = new NoConnectionDBException();
+            setException(noCon);
+
         } catch (Exception ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
             setException(ex);
@@ -128,7 +161,8 @@ public class DAO implements ClientServer {
                     resultSet.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                    setException(ex);
+                    NoConnectionDBException noCon = new NoConnectionDBException();
+                    setException(noCon);
                 }
             }
             if (preparedStmt != null) {
@@ -136,19 +170,25 @@ public class DAO implements ClientServer {
                     preparedStmt.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                    setException(ex);
+                    NoConnectionDBException noCon = new NoConnectionDBException();
+                    setException(noCon);
                 }
             }
         }
         return false;
     }
 
-    //methos that sees if the passwd is correct
-    public boolean blnPassExist(User user) {
+    /**
+     * method that verify if the passwd is correct
+     *
+     * @param user
+     * @return true if the password is correct or false if its not
+     * @throws PasswordErrorException
+     */
+    public boolean blnPassExist(User user) throws PasswordErrorException {
         preparedStmt = null;
         ResultSet resultSet = null;
         try {
-
             preparedStmt = connection.prepareStatement(selectPasswd);
             preparedStmt.setString(1, user.getLogIn());
             resultSet = preparedStmt.executeQuery();
@@ -160,7 +200,8 @@ public class DAO implements ClientServer {
             }
         } catch (SQLException sqlE) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, sqlE);
-            setException(sqlE);
+            NoConnectionDBException noCon = new NoConnectionDBException();
+            setException(noCon);
         } catch (Exception ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
             setException(ex);
@@ -170,7 +211,8 @@ public class DAO implements ClientServer {
                     resultSet.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                    setException(ex);
+                    NoConnectionDBException noCon = new NoConnectionDBException();
+                    setException(noCon);
                 }
             }
             if (preparedStmt != null) {
@@ -178,21 +220,37 @@ public class DAO implements ClientServer {
                     preparedStmt.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-                    setException(ex);
+                    NoConnectionDBException noCon = new NoConnectionDBException();
+                    setException(noCon);
                 }
             }
         }
         return false;
     }
 
+    /**
+     * Method that save if an Exception has ocurred
+     *
+     * @param e
+     */
     private void setException(Exception e) {
         this.exception = e;
     }
 
+    /**
+     * Method that get the exception saved previously
+     *
+     * @return the exception or null if any exception has ocurred
+     */
     public Exception getException() {
         return this.exception;
     }
 
+    /**
+     * Method to increment automathicaly the user id
+     *
+     * @return max id is saved in the DB +1
+     */
     private Integer getUserId() {
         Integer UserId = 0;
         ResultSet resultSet = null;
@@ -205,16 +263,22 @@ public class DAO implements ClientServer {
             UserId = UserId + 1; // sumamos 1 al total de Id users
         } catch (SQLException e) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-            setException(e);
+            NoConnectionDBException noCon = new NoConnectionDBException();
+            setException(noCon);
         }
         return UserId;
     }
 
+    /**
+     * Method that return the connection to the Pool
+     */
     public void closeConnection() {
         try {
             connection.close();
         } catch (SQLException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            NoConnectionDBException noCon = new NoConnectionDBException();
+            setException(noCon);
         }
     }
 }
