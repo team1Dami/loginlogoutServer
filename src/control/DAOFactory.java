@@ -27,11 +27,4 @@ public class DAOFactory {
         // le pide al Pool una instancia
         return getPoolInstance();
     }
-
-    /*  public synchronized static ConnectionPool getPoolInstance() throws Exception {
-        if (null == PoolInstance) {  // preguntamos si la instancia es null
-            PoolInstance = new ConnectionPool(); // la primera vez entrará e instanciará la PoolInstance        
-        }
-        return PoolInstance;  // devolvemos la instancia de nuestra clase ConnectionPool
-    }*/
 }
