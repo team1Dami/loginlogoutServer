@@ -1,6 +1,5 @@
 package loginlogoutserver;
 
-import exceptions.NoServerConnectionException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
@@ -11,6 +10,7 @@ import java.util.logging.Logger;
 import threads.ServerWorker;
 
 /**
+ * Server class coints the main method to start the server and the serverSocket
  *
  * @author saray, eneko
  */
@@ -31,8 +31,8 @@ public class Server {
     }
 
     /**
-     * Method main to start the infinite loop to wait a connection
-     * When a client ask for a connection a new thread is created
+     * Method main to start the infinite loop to wait a connection When a client
+     * ask for a connection a new thread is created
      *
      * @param args
      */

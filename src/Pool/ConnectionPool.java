@@ -1,8 +1,3 @@
-/*
- * Package that contains the ConnectionPool class
- * and the methods to 
- * 
- */
 package Pool;
 
 import exceptions.NoConnectionDBException;
