@@ -79,7 +79,7 @@ public class LoginController {
         //disable the Login button
 
         //If password field is higher than 12
-        if (tfPasswd.getText().length() > 12 || tfPasswd.getText().length() < 6) {
+        if (tfPasswd.getText().length() > 12) {
             btnLogin.setDisable(true);
         } //If text fields are empty 
         else if (tfLogin.getText().trim().isEmpty()

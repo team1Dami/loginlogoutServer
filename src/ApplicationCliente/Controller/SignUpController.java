@@ -70,7 +70,7 @@ public class SignUpController implements Initializable {
         logger.info("Initializing signUp stage");
 
         Scene scene = new Scene(root);
-//     
+
         stage.setScene(scene);
         stage.setTitle("Formulario de registro");
         stage.setResizable(false);
@@ -114,7 +114,7 @@ public class SignUpController implements Initializable {
             String oldValue,
             String newValue) {
         logger.info("Checking changes in text fields");
-
+        Alert alert;
         if (validateEmail(tfEmail.getText().toString())
                 && !tfFullName.getText().isEmpty()
                 && !tfUser.getText().isEmpty()
@@ -126,7 +126,7 @@ public class SignUpController implements Initializable {
                 && tfPasswd.getText().length() <= MAX_PASS_LENGHT) {
             btnAccept.setDisable(false);
         } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert = new Alert(Alert.AlertType.WARNING);
             //  alert.showAndWait();
             btnAccept.setDisable(true);
         }
@@ -214,11 +214,9 @@ public class SignUpController implements Initializable {
 
         Matcher mather = pattern.matcher(email);
         if (!mather.find()) {
-            Alert alert;
-            String error = "Email con formato incorrecto"
-                    + "\n Por favor introduzca un email válido";
-            alert = new Alert(Alert.AlertType.WARNING, error, ButtonType.OK);
+            return false;
+        } else {
+            return true;
         }
-        return mather.find();
     }
 }
