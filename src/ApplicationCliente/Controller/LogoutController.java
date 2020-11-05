@@ -5,8 +5,8 @@
  */
 package ApplicationCliente.Controller;
 
-import Implementacion.ClientServerImplementation;
-import Implementacion.Factoria;
+import Implementation.ClientServerImplementation;
+import Implementation.ImpFactory;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,8 +20,9 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 /**
+ * Controller of the signup view
  *
- * @author rubir
+ * @author Rubén
  */
 public class LogoutController {
 
@@ -31,10 +32,9 @@ public class LogoutController {
     private Button btnSignOut;
     @FXML
     private Button btnClose;
-    @FXML
-    private Label lblUser;
 
     /**
+     * Set the stage of the view
      *
      * @param stage
      */
@@ -43,6 +43,7 @@ public class LogoutController {
     }
 
     /**
+     * Initialize the view and set actions
      *
      * @param root
      */
@@ -51,8 +52,7 @@ public class LogoutController {
         stage.setScene(scene);
         stage.setResizable(false);
         stage.setTitle("Logout");
-        ClientServerImplementation imp = Factoria.getImplement();
-        lblUser.setText(imp.getLogin());
+
         stage.show();
 
         btnSignOut.setOnAction(this::handleButtonCerrarSesion);
@@ -61,6 +61,7 @@ public class LogoutController {
     }
 
     /**
+     * Action event handler. It close the stage.
      *
      * @param event
      */
@@ -69,6 +70,7 @@ public class LogoutController {
     }
 
     /**
+     * Action event handler. It open the login view.
      *
      * @param event
      */

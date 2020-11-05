@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package Implementacion;
+package Implementation;
 
 import classes.Message;
 import classes.User;
@@ -14,8 +9,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
 /**
+ * This class manage the client implementation in order to access to server
  *
- * @author rubir
+ * @author Ruben
  */
 public class ClientServerImplementation implements ClientServer {
 
@@ -24,9 +20,12 @@ public class ClientServerImplementation implements ClientServer {
     private String login;
 
     /**
+     * It will generate a thread to connect the server, it'll recieve a User
+     * object witch contains the information introduced by the user. It'll do a
+     * login
      *
      * @param user
-     * @return
+     * @return Object class User
      */
     @Override
     public User signIn(User user) {
@@ -34,7 +33,7 @@ public class ClientServerImplementation implements ClientServer {
         message.setUser(user);
 
         message.setType(1);
-        Hilo hilo = new Hilo();
+        ClientWorker hilo = new ClientWorker();
         hilo.setMessage(message);
         hilo.start();
         try {
@@ -57,16 +56,19 @@ public class ClientServerImplementation implements ClientServer {
     }
 
     /**
+     * It will generate a thread to connect the server, it'll recieve a User
+     * object witch contains the information introduced by the user. It'll do a
+     * signup
      *
      * @param user
-     * @return
+     * @return Object class User
      */
     @Override
     public User signUp(User user) {
 
         message.setUser(user);
         message.setType(2);
-        Hilo hilo = new Hilo();
+        ClientWorker hilo = new ClientWorker();
         hilo.setMessage(message);
         hilo.start();
         try {
@@ -76,51 +78,31 @@ public class ClientServerImplementation implements ClientServer {
         }
         message = hilo.getMessage();
         if (message.getException() != null) {
-        } else {
 
+        } else {
+            user = null;
+            String error = exceptions();
+            Alert alert = new Alert(Alert.AlertType.ERROR, error, ButtonType.OK);
+            alert.showAndWait();
+            message.setException(null);
         }
         return user;
     }
 
     /**
+     * In case an error ocurred during the thread ejecution, it will return the
+     * exception and will handle them
      *
-     * @return
+     * @return String
      */
     public String exceptions() {
-        String error = null;
-        switch (message.getException().toString()) {
-            case "UserExistException":
-                error = "Usuario ya registrado";
-                break;
-            case "EmailExistException":
-                error = "El email ya está registrado";
-                break;
-            case "EmailFormatException":
-                error = "Email con formato incorrecto"
-                        + "\n Por favor introduzca un email válido";
-                break;
-            case "LoginNoExistException":
-                error = "El login ya está registrado";
-                break;
-            case "NoConnectionDBException":
-                error = "Ha ocurrido un error inesperado"
-                        + "\n Inténtelo de nuevo en unos minutos";
-                break;
-            case "PasswordErrorException":
-                error = "Usuario o contraseña incorrectos";
-                break;
-            case "NoServerConnectionException":
-                break;
-            default:
-                error = "Ha ocurrido un error inesperado"
-                        + "\n Inténtelo de nuevo en unos minutos";
-        }
-        return error;
+        return message.getException();
     }
 
     /**
+     * Method to obtain the loggin of the user
      *
-     * @return
+     * @return string login
      */
     public String getLogin() {
 

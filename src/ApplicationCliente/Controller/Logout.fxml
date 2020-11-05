@@ -14,7 +14,6 @@
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Label snapToPixel="false" text="Bienvenido " />
-                  <Label fx:id="lblUser" text="&quot;Usuario&quot;" />
                </children>
             </HBox>
          </children>

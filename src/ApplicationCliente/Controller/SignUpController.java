@@ -1,11 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ApplicationCliente.Controller;
 
-import Implementacion.ClientServerImplementation;
+import Implementation.ClientServerImplementation;
 import classes.User;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -23,10 +18,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.stage.WindowEvent;
 
 /**
+ * Class to controll the elements of the signUp UI
  *
  * @author saray
  */
@@ -55,6 +52,7 @@ public class SignUpController implements Initializable {
     private Button btnAccept;
 
     /**
+     * Method to set the stage
      *
      * @param stage
      */
@@ -63,6 +61,8 @@ public class SignUpController implements Initializable {
     }
 
     /**
+     * Method to initialice the stage and add the events to the elements of the
+     * UI
      *
      * @param root
      */
@@ -86,11 +86,13 @@ public class SignUpController implements Initializable {
         tfPasswd2.textProperty().addListener(this::textChanged);
         tfPasswd2.setPromptText("Repita su contraseña");
         btnCancel.setOnAction(this::handleButtonCancelarAction);
+        btnAccept.setDisable(true);
         btnAccept.setOnAction(this::handleButtonAceptarAction);
         stage.show();
     }
 
     /**
+     * Method to initialize the view
      *
      * @param location
      * @param resources
@@ -101,6 +103,8 @@ public class SignUpController implements Initializable {
     }
 
     /**
+     * Method to control the changes on the text fields when the focus change If
+     * an error ocurr an alert advice the user of the error
      *
      * @param observable
      * @param oldValue
@@ -110,28 +114,6 @@ public class SignUpController implements Initializable {
             String oldValue,
             String newValue) {
         logger.info("Checking changes in text fields");
-        Alert alert;
-        /*     if (!validateEmail(tfEmail.getText().toString().trim())) {
-            alert = new Alert(Alert.AlertType.WARNING);
-        }
-        else if (!tfPasswd.getText().toString().isEmpty()) {
-            if (tfPasswd.getText().length() < MIN_PASS_LENGHT || tfPasswd.getText().length() > MAX_PASS_LENGHT) {
-                alert = new Alert(Alert.AlertType.WARNING);
-            } 
-        } else {
-            alert = new Alert(Alert.AlertType.WARNING);
-        }
-        if (!tfPasswd2.getText().toString().isEmpty()) {
-            if (tfPasswd2.getText().length() < MIN_PASS_LENGHT || tfPasswd2.getText().length() > MAX_PASS_LENGHT) {
-                alert = new Alert(Alert.AlertType.WARNING);
-            } 
-        } 
-        if (tfUser.getText().toString().isEmpty()) {
-            alert = new Alert(Alert.AlertType.WARNING);
-        } 
-        if (tfFullName.getText().toString().isEmpty()) {
-            alert = new Alert(Alert.AlertType.WARNING);
-        } */
 
         if (validateEmail(tfEmail.getText().toString())
                 && !tfFullName.getText().isEmpty()
@@ -139,16 +121,19 @@ public class SignUpController implements Initializable {
                 && !tfEmail.getText().isEmpty()
                 && !tfPasswd.getText().isEmpty()
                 && !tfPasswd2.getText().isEmpty()
-                && tfPasswd.getText().equals(tfPasswd2.getText())) {
+                && tfPasswd.getText().equals(tfPasswd2.getText())
+                && tfPasswd.getText().length() >= MIN_PASS_LENGHT
+                && tfPasswd.getText().length() <= MAX_PASS_LENGHT) {
             btnAccept.setDisable(false);
         } else {
-            alert = new Alert(Alert.AlertType.WARNING);
+            Alert alert = new Alert(Alert.AlertType.WARNING);
             //  alert.showAndWait();
             btnAccept.setDisable(true);
         }
     }
 
     /**
+     * Method to manage the button Accept At the begining the buton is disabled
      *
      * @param event
      */
@@ -157,6 +142,10 @@ public class SignUpController implements Initializable {
     }
 
     /**
+     * Method to manage the action on the button Accept First of all: get the
+     * values of the text fields and set to the User class After sends the
+     * values to the ClientServerImplementation class If the register is
+     * succesfull the login view is opened
      *
      * @param event
      */
@@ -188,13 +177,14 @@ public class SignUpController implements Initializable {
     }
 
     /**
+     * Method to manage the action on the button Cancel if is clicked the logIn
+     * view is opened, if it can't be opened an alert message is showing
      *
      * @param event
      */
     @FXML
     private void handleButtonCancelarAction(ActionEvent event) {
-        Alert alert;
-        //Parent root1;
+
         try {
             FXMLLoader loader
                     = new FXMLLoader(getClass().getResource("Login.fxml"));
@@ -208,19 +198,27 @@ public class SignUpController implements Initializable {
             logger.log(Level.SEVERE,
                     "UI LoginController: Error opening users managing window: {0}",
                     ex.getMessage());
+            Alert alert = new Alert(Alert.AlertType.WARNING, "No se ha podido cargar la ventana", ButtonType.OK);
         }
     }
 
     /**
+     * Method to validate the email format
      *
      * @param email
-     * @return
+     * @return true or false
      */
     private boolean validateEmail(String email) {
         // Patron para validar el email
         Pattern pattern = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
         Matcher mather = pattern.matcher(email);
+        if (!mather.find()) {
+            Alert alert;
+            String error = "Email con formato incorrecto"
+                    + "\n Por favor introduzca un email válido";
+            alert = new Alert(Alert.AlertType.WARNING, error, ButtonType.OK);
+        }
         return mather.find();
     }
 }

@@ -1,13 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ApplicationCliente.Controller;
 
 import ApplicationCliente.LoginLogoutCliente;
-import Implementacion.ClientServerImplementation;
-import Implementacion.Factoria;
+import Implementation.ClientServerImplementation;
+import Implementation.ImpFactory;
 import classes.User;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -25,11 +20,13 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 /**
+ * Controller of the login view
  *
- * @author Rubén Rabadán
+ * @author Rubén
  */
 public class LoginController {
 
+    private static final Logger logger = Logger.getLogger("ApplicationClient.Controller.LoginController");
     //Declaration of attributes
     @FXML
     private Stage stage;
@@ -44,6 +41,7 @@ public class LoginController {
     private TextField tfPasswd;
 
     /**
+     * Set the stage of the view
      *
      * @param stage
      */
@@ -52,6 +50,7 @@ public class LoginController {
     }
 
     /**
+     * Initialize the view and set actions on different widgets
      *
      * @param root
      */
@@ -69,6 +68,8 @@ public class LoginController {
     }
 
     /**
+     * Text changed event handler. If both fields are empty the button is
+     * disable
      *
      * @param observable
      * @param oldValue
@@ -78,7 +79,7 @@ public class LoginController {
         //disable the Login button
 
         //If password field is higher than 12
-        if (tfPasswd.getText().trim().length() > 12) {
+        if (tfPasswd.getText().length() > 12 || tfPasswd.getText().length() < 6) {
             btnLogin.setDisable(true);
         } //If text fields are empty 
         else if (tfLogin.getText().trim().isEmpty()
@@ -92,6 +93,8 @@ public class LoginController {
     }
 
     /**
+     * Action event handler. It validate the login and password fields. If both
+     * fields are ok open logout view.
      *
      * @param event
      */
@@ -102,8 +105,9 @@ public class LoginController {
             User myUser = new User();
             myUser.setLogIn(tfLogin.getText().toString());
             myUser.setPasswd(tfPasswd.getText().toString());
-            ClientServerImplementation imp = Factoria.getImplement();
-            User serverUser = imp.signIn(myUser);
+            ClientServerImplementation imp = ImpFactory.getImplement();
+            User serverUser = null;
+            serverUser = imp.signIn(myUser);
 
             if (serverUser != null) {
 
@@ -119,12 +123,15 @@ public class LoginController {
                 } catch (IOException ex) {
                     Logger.getLogger(LogoutController.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            } else {
+                logger.info("User null");
             }
         }
 
     }
 
     /**
+     * Action event handler. It open register view.
      *
      * @param event
      */
@@ -140,6 +147,7 @@ public class LoginController {
             controller.initStage(root);
         } catch (IOException ex) {
             Logger.getLogger(LoginLogoutCliente.class.getName()).log(Level.SEVERE, null, ex);
+            Alert alert = new Alert(Alert.AlertType.WARNING, "No se ha podido cargar la ventana", ButtonType.OK);
         }
     }
 }

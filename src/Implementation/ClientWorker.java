@@ -1,8 +1,4 @@
-/*
- * 
- *
- */
-package Implementacion;
+package Implementation;
 
 import classes.Message;
 import java.io.IOException;
@@ -14,10 +10,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * The class of the client thread
  *
- * @author Rubén Rabadán
+ * @author Rubén
  */
-public class Hilo extends Thread {
+public class ClientWorker extends Thread {
 
     private static final Logger logger = Logger.getLogger("Implementacion.Hilo");
     private static final ResourceBundle clientFile = ResourceBundle.getBundle("ApplicationClient.Properties/Client");
@@ -26,6 +23,7 @@ public class Hilo extends Thread {
     private Message message;
 
     /**
+     * Set the message information to a local object Message
      *
      * @param message
      */
@@ -34,7 +32,7 @@ public class Hilo extends Thread {
     }
 
     /**
-     *
+     * Thread execution
      */
     public void run() {
         logger.info("Hilo del cliente recogiendo el mensaje");
@@ -56,10 +54,10 @@ public class Hilo extends Thread {
             message = (Message) objectInputStream.readObject();
 
         } catch (IOException ex) {
-            Logger.getLogger(Hilo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClientWorker.class.getName()).log(Level.SEVERE, null, ex);
             message.setException(ex);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Hilo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClientWorker.class.getName()).log(Level.SEVERE, null, ex);
             message.setException(ex);
         } finally {
             if (objectOutputStream != null) {
@@ -67,7 +65,7 @@ public class Hilo extends Thread {
                     objectOutputStream.close();
                     objectInputStream.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(Hilo.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ClientWorker.class.getName()).log(Level.SEVERE, null, ex);
                     message.setException(ex);
                 }
             }
@@ -76,13 +74,14 @@ public class Hilo extends Thread {
                     socket.close();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(Hilo.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ClientWorker.class.getName()).log(Level.SEVERE, null, ex);
                 message.setException(ex);
             }
         }
     }
 
     /**
+     * Returns the object message
      *
      * @return
      */

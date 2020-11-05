@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ApplicationCliente;
 
 import ApplicationCliente.Controller.LoginController;
@@ -15,6 +10,7 @@ import javafx.scene.Parent;
 import javafx.stage.Stage;
 
 /**
+ * Main Class LoginLogoutCliente to start the application UI
  *
  * @author Ruben
  */
@@ -23,6 +19,7 @@ public class LoginLogoutCliente extends Application {
     private Logger logger = Logger.getLogger("ApplicationCliente.LoginLogoutCliente");
 
     /**
+     * This method will initialize the login window
      *
      * @param stage
      */
@@ -47,6 +44,8 @@ public class LoginLogoutCliente extends Application {
     }
 
     /**
+     * Main method to launch the applictaion UI
+     *
      * @param args the command line arguments
      */
     public static void main(String[] args) {
