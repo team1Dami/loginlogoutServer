@@ -71,7 +71,7 @@ public class DAO implements ClientServer {
         } catch (PasswordErrorException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
             setException(ex);
-        } 
+        }
         return user;
     }
 
@@ -121,7 +121,7 @@ public class DAO implements ClientServer {
                 Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, "");
                 throw new LoginNoExistException(null);
             }
-        }  catch (LoginNoExistException ex) {
+        } catch (LoginNoExistException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return user;
