@@ -1,7 +1,3 @@
-/*
- * Package that contains the DAO class
- * and the methods to make queries to the Data Base (db) 
- */
 package control;
 
 import classes.User;
