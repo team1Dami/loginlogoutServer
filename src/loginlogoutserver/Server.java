@@ -20,6 +20,8 @@ public class Server {
     private static ResourceBundle socketFile = ResourceBundle.getBundle("loginlogoutserver.socketFile");
     private static int PORT = Integer.parseInt(Server.socketFile.getString("PORT"));
     private static int MAX_CONN = Integer.parseInt(Server.socketFile.getString("MAX_CONN"));
+    private static int numUsers = 0; // contador de clientes conectados
+    
 
     /**
      * Constructor
@@ -28,6 +30,7 @@ public class Server {
         socketFile = ResourceBundle.getBundle("loginlogoutserver.socketFile");
         PORT = Integer.parseInt(this.socketFile.getString("PORT"));
         MAX_CONN = Integer.parseInt(this.socketFile.getString("MAX_CONN"));
+        
     }
 
     /**
@@ -37,12 +40,8 @@ public class Server {
      * @param args
      */
     public static void main(String[] args) {
-
         Socket socket = null;
         ServerSocket server = null;
-        ObjectInputStream objectInput = null;
-
-        int numUsers = 0; // contador de clientes conectados
 
         try {
             // Se crea el serverSocket
@@ -55,10 +54,14 @@ public class Server {
                 logger.info("Cliente con la IP " + socket.getInetAddress().getHostName() + " conectado.");
 
                 if (numUsers <= MAX_CONN) {
-                    numUsers++;  // sumamos 1 al contador de clientes conectados
+                    setNumUsers(numUsers+1);
+                    //numUsers++;
+                    // sumamos 1 al contador de clientes conectados
                     ServerWorker myClientWorker = new ServerWorker(socket);
-
                     myClientWorker.start();
+                }
+                else{
+                    
                 }
             }
         } catch (IOException ex) {
@@ -66,7 +69,6 @@ public class Server {
         } finally {
             try {
                 numUsers--; // restamos 1 al contador de clientes conectados
-                objectInput.close();
                 socket.close();
                 server.close();
             } catch (IOException ex) {
@@ -74,6 +76,12 @@ public class Server {
 
             }
         }
+    }
+    public static synchronized int getNumUsers(){
+        return numUsers;
+    }
+    public static synchronized void setNumUsers(int numUser){
+        numUsers=numUser;
     }
 
 }

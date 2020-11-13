@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.sql.Connection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import loginlogoutserver.Server;
 
 /**
  * ServerWorker class extends Thread
@@ -26,6 +27,7 @@ public class ServerWorker extends Thread {
     private Connection connection = null;
     private Message myMessage;
     private Socket mySocket;
+    private Server server;
 
     /**
      * Constructor to set the socket into the thread ServerWorker
@@ -73,16 +75,8 @@ public class ServerWorker extends Thread {
             Connection conn = null;
             try {
                 conn = DAOFactory.Pool().getConnection(); // recogemos la conexión de nuestra instancia del Pool (recuerda que el método Pool pide una instancia del ConnectionPool!!!!
-            } catch (NoConnectionDBException ex) {
-                Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
-                message.setException(ex);
-            } catch (Exception ex) {
-                Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
-                message.setException(ex);
-            }
-            myDAO.setConnection(conn);  // enviamos conexión a la DB
-
-            if (myMessage.getType().equals("logIn")) {
+                myDAO.setConnection(conn);  // enviamos conexión a la DB
+                if (myMessage.getType().equals("logIn")) {
                 myMessage.setUser(myDAO.signIn(myUser));  // recogemos el user tras la consulta a la DB
                 myMessage.setException(myDAO.getException());  // recogemos la excepción que nos viene de la DB
 
@@ -91,6 +85,22 @@ public class ServerWorker extends Thread {
                 myMessage.setException(myDAO.getException()); // recogemos la excepción que nos viene de la DB
             }
             message.setException(myDAO.getException());
+            /*} catch (NoConnectionDBException ex) {
+                Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+                message.setException(ex);*/
+            }catch (Exception ex) {
+                try {
+                    Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new NoConnectionDBException(null);
+                    
+                } catch (NoConnectionDBException ex1) {
+                    Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex1);
+                    message.setException(ex1);
+                }
+            }
+           
+
+            
             // escribimos los datos en el buffer
             objectOutput = new ObjectOutputStream(mySocket.getOutputStream());
             objectOutput.writeObject(myMessage);
@@ -108,6 +118,8 @@ public class ServerWorker extends Thread {
             try {
                 objectOutput.close();
                 objectInput.close();
+                Server.setNumUsers(Server.getNumUsers() + 1);
+
             } catch (IOException ex) {
                 Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
                 NoServerConnectionException noCon = new NoServerConnectionException(null);
