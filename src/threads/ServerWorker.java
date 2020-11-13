@@ -11,8 +11,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import loginlogoutserver.Server;
 
 /**
  * ServerWorker class extends Thread
@@ -78,7 +80,8 @@ public class ServerWorker extends Thread {
                 message.setException(ex);
             } catch (Exception ex) {
                 Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
-                message.setException(ex);
+                NoServerConnectionException noCon = new NoServerConnectionException(null);
+                message.setException(noCon);
             }
             myDAO.setConnection(conn);  // enviamos conexión a la DB
 
@@ -95,17 +98,27 @@ public class ServerWorker extends Thread {
             objectOutput = new ObjectOutputStream(mySocket.getOutputStream());
             objectOutput.writeObject(myMessage);
 
-            myDAO.closeConnection(); // devolvemos conexión
+            //myDAO.closeConnection(); // devolvemos conexión
+            if (conn != null) {
+                conn.close();
+            }
+
         } catch (IOException ex) {
             Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
             NoServerConnectionException noCon = new NoServerConnectionException(null);
             message.setException(noCon);
+
+        } catch (SQLException ex) {
+            Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+            NoConnectionDBException noCon = new NoConnectionDBException(null);
+            message.setException(noCon);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
-            message.setException(ex);
-
+            NoServerConnectionException noCon = new NoServerConnectionException(null);
+            message.setException(noCon);
         } finally {
             try {
+                Server.setNumUsers(Server.getNumUsers() - 1);
                 objectOutput.close();
                 objectInput.close();
             } catch (IOException ex) {

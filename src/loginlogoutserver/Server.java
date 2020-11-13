@@ -1,5 +1,6 @@
 package loginlogoutserver;
 
+import exceptions.NoServerConnectionException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
@@ -10,7 +11,6 @@ import java.util.logging.Logger;
 import threads.ServerWorker;
 
 /**
- * Server class coints the main method to start the server and the serverSocket
  *
  * @author saray, eneko
  */
@@ -20,6 +20,15 @@ public class Server {
     private static ResourceBundle socketFile = ResourceBundle.getBundle("loginlogoutserver.socketFile");
     private static int PORT = Integer.parseInt(Server.socketFile.getString("PORT"));
     private static int MAX_CONN = Integer.parseInt(Server.socketFile.getString("MAX_CONN"));
+    private static int numUsers = 0; // contador de clientes conectados
+
+    public synchronized static int getNumUsers() {
+        return numUsers;
+    }
+
+    public synchronized static void setNumUsers(int numUsers) {
+        Server.numUsers = numUsers;
+    }
 
     /**
      * Constructor
@@ -31,8 +40,8 @@ public class Server {
     }
 
     /**
-     * Method main to start the infinite loop to wait a connection When a client
-     * ask for a connection a new thread is created
+     * Method main to start the infinite loop to wait a connection
+     * When a client ask for a connection a new thread is created
      *
      * @param args
      */
@@ -40,9 +49,6 @@ public class Server {
 
         Socket socket = null;
         ServerSocket server = null;
-        ObjectInputStream objectInput = null;
-
-        int numUsers = 0; // contador de clientes conectados
 
         try {
             // Se crea el serverSocket
@@ -54,7 +60,7 @@ public class Server {
                 socket = server.accept();
                 logger.info("Cliente con la IP " + socket.getInetAddress().getHostName() + " conectado.");
 
-                if (numUsers <= MAX_CONN) {
+                if (true) {
                     numUsers++;  // sumamos 1 al contador de clientes conectados
                     ServerWorker myClientWorker = new ServerWorker(socket);
 
@@ -65,8 +71,6 @@ public class Server {
             logger.log(Level.SEVERE, "Ha fallado la lectura en el servidor", ex.getMessage());
         } finally {
             try {
-                numUsers--; // restamos 1 al contador de clientes conectados
-                objectInput.close();
                 socket.close();
                 server.close();
             } catch (IOException ex) {
@@ -74,6 +78,5 @@ public class Server {
 
             }
         }
-    }
-
+    } 
 }

@@ -4,13 +4,16 @@ import classes.User;
 import exceptions.LoginNoExistException;
 import exceptions.NoConnectionDBException;
 import exceptions.PasswordErrorException;
+import exceptions.UserExistException;
 import interfaces.ClientServer;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,6 +33,7 @@ public class DAO implements ClientServer {
     private static final String selectLogin = "SELECT login FROM users";
     private static final String selectPasswd = "SELECT password FROM users WHERE login = ?";
     private static final String selectMaxId = "SELECT MAX(id) FROM users";
+    private static final String updateLastAccess = "UPDATE users set lastAccess = ? where login = ? and password = ?";
 
     /**
      * Method to take the connection throws the thread serverWorker
@@ -52,7 +56,12 @@ public class DAO implements ClientServer {
         try {
             if (blnExist(user)) {
                 if (blnPassExist(user)) {
-
+                    
+                    preparedStmt = connection.prepareStatement(updateLastAccess);
+                    preparedStmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.MIN.now()));
+                    preparedStmt.setString(2, user.getLogIn());
+                    preparedStmt.setString(3, user.getPasswd());
+                    preparedStmt.executeUpdate();                   
                 } else {
                     user.setPasswd(null);
                     throw new PasswordErrorException(null);
@@ -67,6 +76,8 @@ public class DAO implements ClientServer {
         } catch (PasswordErrorException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
             setException(ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return user;
     }
@@ -92,8 +103,8 @@ public class DAO implements ClientServer {
                     preparedStmt.setObject(5, 1);
                     preparedStmt.setObject(6, 1);
                     preparedStmt.setString(7, user.getPasswd());
-                    preparedStmt.setDate(8, Date.valueOf(LocalDate.now()));
-                    preparedStmt.setDate(9, Date.valueOf(LocalDate.now()));
+                    preparedStmt.setTimestamp(8,Timestamp.valueOf(LocalDateTime.MIN.now()));
+                    preparedStmt.setTimestamp(9, Timestamp.valueOf(LocalDateTime.MIN.now()));
 
                     preparedStmt.executeUpdate();
 
@@ -101,9 +112,6 @@ public class DAO implements ClientServer {
                     Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, sqlE);
                     NoConnectionDBException noCon = new NoConnectionDBException(null);
                     setException(noCon);
-                } catch (Exception e) {
-                    Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, e);
-                    setException(e);
                 } finally {
                     try {
                         preparedStmt.close();
@@ -115,10 +123,11 @@ public class DAO implements ClientServer {
                 }
             } else {
                 Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, "");
-                throw new LoginNoExistException(null);
+                throw new UserExistException(null);
             }
-        } catch (LoginNoExistException ex) {
+        } catch (UserExistException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            setException(ex);
         }
         return user;
     }
@@ -198,9 +207,6 @@ public class DAO implements ClientServer {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, sqlE);
             NoConnectionDBException noCon = new NoConnectionDBException(null);
             setException(noCon);
-        } catch (Exception ex) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-            setException(ex);
         } finally {
             if (resultSet != null) {
                 try {
